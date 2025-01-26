@@ -87,7 +87,7 @@ class GitCosmosDBSynchronizer:
 if __name__ == "__main__":
     synchronizer = GitCosmosDBSynchronizer(
         repo_path='./cosmos-sync',
-        cosmos_endpoint='https://shlomi-lab-cosmos.documents.azure.com:443',
-        cosmos_key='YTrBZGz2bH10gb3Go1km6CXZGrMIApLohvQaXDpAr9uDQ5Ow8qwGoWllZ1eqzBfUPoCJolIZZh9XACDbOyukEw=='
+        cosmos_endpoint=os.environ.get('COSMOS_ENDPOINT'),
+        cosmos_key=os.environ.get('COSMOS_KEY')
     )
     synchronizer.run()
