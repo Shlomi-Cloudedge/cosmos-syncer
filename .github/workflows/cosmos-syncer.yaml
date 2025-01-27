@@ -28,23 +28,23 @@ jobs:
         done
         echo "MODIFIED_FILES=$file_list" >> $GITHUB_OUTPUT
 
-    - name: Set up Python
-      if: ${{ steps.list_files.outputs.modified_files != '' }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.9'
+    # - name: Set up Python
+    #   if: ${{ steps.list_files.outputs.modified_files != '' }}
+    #   uses: actions/setup-python@v3
+    #   with:
+    #     python-version: '3.9'
     
-    - name: Install dependencies
-      if: ${{ steps.list_files.outputs.modified_files != '' }}
-      run: |
-        python -m pip install --upgrade pip
-        pip install azure-cosmos
+    # - name: Install dependencies
+    #   if: ${{ steps.list_files.outputs.modified_files != '' }}
+    #   run: |
+    #     python -m pip install --upgrade pip
+    #     pip install azure-cosmos
     
-    - name: Sync to Cosmos DB
-      if: ${{ steps.list_files.outputs.modified_files != '' }}
-      env:
-        COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
-        COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
-        MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
-      run: |
-        python syncer-enrichment.py
+    # - name: Sync to Cosmos DB
+    #   if: ${{ steps.list_files.outputs.modified_files != '' }}
+    #   env:
+    #     COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
+    #     COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
+    #     MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
+    #   run: |
+    #     python syncer-enrichment.py
