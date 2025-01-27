@@ -13,6 +13,8 @@ jobs:
         MODIFIED_FILES: ${{ steps.list_files.outputs.MODIFIED_FILES }}
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: List all modified json files
       id: list_files
