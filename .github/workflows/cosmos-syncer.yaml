@@ -23,7 +23,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install azure-cosmos
     
+    - name: List modified and new JSON files
+      id: list_files
+      run: |
+        git diff --name-only --diff-filter=AM ${{ github.event.before }} ${{ github.sha }} | grep '\.json$' || echo "No modified or new JSON files."
+    
+    - name: Output JSON files
+      if: steps.list_files.outputs.files != '' # Skips if no files are found
+      run: |
+        echo "Modified and new JSON files:"
+        git diff --name-only --diff-filter=AM ${{ github.event.before }} ${{ github.sha }} | grep '\.json$'
+
     - name: Sync to Cosmos DB
+      if: steps.list_files.outputs.files != '' # Sync only if files exist
       env:
         COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
