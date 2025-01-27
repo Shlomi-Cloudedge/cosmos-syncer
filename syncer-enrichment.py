@@ -23,8 +23,7 @@ class GitCosmosDBSynchronizer:
                partition_key=PartitionKey(path="/id")
            )
 
-           for filename in os.listdir(container_path):
-               if filename.endswith('.json'):
+           for filename in os.environ.get('MODIFIED_FILES').split():
                    file_path = os.path.join(container_path, filename)
                    
                    try:

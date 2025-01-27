@@ -9,10 +9,18 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    
+    outputs:
+        MODIFIED_FILES: ${{ steps.list_files.outputs.MODIFIED_FILES }}
     steps:
     - uses: actions/checkout@v3
-    
+
+    - name: List all modified json files
+      id: list_files
+      run: |
+        list=$(git diff HEAD~ HEAD --name-only -- '*.json')
+        echo "MODIFIED_FILES={$list}" >> $GITHUB_OUTPUT
+
+
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
@@ -27,5 +35,6 @@ jobs:
       env:
         COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
+        MODIFIED_FILES: ${{ steps.list_files.outputs.MODIFIED_FILES }}
       run: |
         python syncer-enrichment.py
