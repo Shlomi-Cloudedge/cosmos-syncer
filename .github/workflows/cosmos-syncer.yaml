@@ -28,4 +28,4 @@ jobs:
         COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
       run: |
-        python sync-enrichment.py
+        python syncer-enrichment.py
