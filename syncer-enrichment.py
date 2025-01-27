@@ -12,17 +12,21 @@ class GitCosmosDBSynchronizer:
     def sync_repository(self):
         database = self.cosmos_client.create_database_if_not_exists(id=self.database_name)
 
-        for filename in os.environ.get('MODIFIED_FILES'):
-            # Remove the repo_path prefix (cosmos-sync/)
-            relative_path = os.path.relpath(filename, self.repo_path)
+        modified_files = os.environ.get('MODIFIED_FILES', "").split(',')
 
-            # Split the path into container name and file name
+        for filename in modified_files:
+            # Remove the repo_path prefix (cosmos-sync/)
+            relative_path = filename.replace(self.repo_path + os.sep, "")
+
+            # Split the path into parts
             parts = relative_path.split(os.sep)
+
+            # Ensure there are at least 2 parts (container and file name)
             if len(parts) < 2:
                 print(f"Skipping invalid path: {filename}")
                 continue
 
-            container_name, file_name = parts[0], parts[1]
+            container_name, file_name = parts[0], parts[-1]
 
             # Skip if the container is not valid
             if container_name not in self.valid_containers:
@@ -37,7 +41,7 @@ class GitCosmosDBSynchronizer:
                 )
 
                 # Load and upsert the JSON file
-                file_path = os.path.join(self.repo_path, container_name, file_name)
+                file_path = os.path.join(self.repo_path, relative_path)
                 with open(file_path, 'r') as file:
                     data = json.load(file)
 
