@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - '**'
-    branches-ignore:
-      - 'main'
-      - 'staging'
+      - '!main'
+      - '!staging'
 
 jobs:
   sync:
