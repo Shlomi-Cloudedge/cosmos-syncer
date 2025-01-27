@@ -61,7 +61,7 @@ class GitCosmosDBSynchronizer:
 
 if __name__ == "__main__":
     synchronizer = GitCosmosDBSynchronizer(
-        repo_path='./cosmos-sync',
+        repo_path='.',
         cosmos_endpoint=os.environ.get('COSMOS_ENDPOINT'),
         cosmos_key=os.environ.get('COSMOS_KEY')
     )
