@@ -28,10 +28,10 @@ class GitCosmosDBSynchronizer:
 
             container_name, file_name = parts[1], parts[-1]
 
-            # Skip if the container is not valid
-            if container_name not in self.valid_containers:
-                print(f"Skipping unknown container: {container_name}")
-                continue
+            # # Skip if the container is not valid
+            # if container_name not in self.valid_containers:
+            #     print(f"Skipping unknown container: {container_name}")
+            #     continue
 
             try:
                 # Ensure the container exists in the database
@@ -51,7 +51,7 @@ class GitCosmosDBSynchronizer:
 
                 # Upsert the item into the container
                 container.upsert_item(body=data)
-                print(f"Uploaded {self.database_name}/{container_name}/{file_name}")
+                print(f"Modified {self.database_name}/{container_name}/{file_name}")
 
             except Exception as e:
                 print(f"Error processing {filename}: {e}")
