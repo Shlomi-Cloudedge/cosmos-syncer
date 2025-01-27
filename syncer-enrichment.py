@@ -3,10 +3,10 @@ import json
 from azure.cosmos import CosmosClient, PartitionKey
 
 class GitCosmosDBSynchronizer:
-    def __init__(self, repo_path, cosmos_endpoint, cosmos_key):
+    def __init__(self, repo_path, cosmos_endpoint, cosmos_key , db_name):
         self.repo_path = repo_path
         self.cosmos_client = CosmosClient(cosmos_endpoint, credential=cosmos_key)
-        self.database_name = "shlomi"
+        self.database_name = db_name
         self.valid_containers = ["enrichment", "enrichment_attributes"]
 
     def sync_repository(self):
@@ -63,6 +63,7 @@ if __name__ == "__main__":
     synchronizer = GitCosmosDBSynchronizer(
         repo_path='.',
         cosmos_endpoint=os.environ.get('COSMOS_ENDPOINT'),
-        cosmos_key=os.environ.get('COSMOS_KEY')
+        cosmos_key=os.environ.get('COSMOS_KEY'),
+        db_name=os.environ.get('COSMOS_DB_NAME')
     )
     synchronizer.run()
