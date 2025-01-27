@@ -51,6 +51,6 @@ jobs:
         COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
         MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
-        COSMOS_DB: ${{ github.ref }}.replace('refs/heads/', '')
+        COSMOS_DB: 'branch'
       run: |
         python syncer-enrichment.py
