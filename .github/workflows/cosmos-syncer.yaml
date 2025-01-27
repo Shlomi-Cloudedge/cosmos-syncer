@@ -24,16 +24,19 @@ jobs:
 
 
     - name: Set up Python
+      if: ${{ steps.list_files.outputs.MODIFIED_FILES != '' }}
       uses: actions/setup-python@v3
       with:
         python-version: '3.9'
     
     - name: Install dependencies
+      if: ${{ steps.list_files.outputs.MODIFIED_FILES != '' }}
       run: |
         python -m pip install --upgrade pip
         pip install azure-cosmos
     
     - name: Sync to Cosmos DB
+      if: ${{ steps.list_files.outputs.MODIFIED_FILES != '' }}
       env:
         COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
