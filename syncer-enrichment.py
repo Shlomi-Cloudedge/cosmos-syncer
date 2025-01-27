@@ -21,12 +21,12 @@ class GitCosmosDBSynchronizer:
             # Split the path into parts
             parts = relative_path.split(os.sep)
 
-            # Ensure there are at least 2 parts (container and file name)
-            if len(parts) < 2:
+            # Ensure there are at least 3 parts (repo_path, container, and file name)
+            if len(parts) < 3:
                 print(f"Skipping invalid path: {filename}")
                 continue
 
-            container_name, file_name = parts[0], parts[-1]
+            container_name, file_name = parts[1], parts[-1]
 
             # Skip if the container is not valid
             if container_name not in self.valid_containers:
