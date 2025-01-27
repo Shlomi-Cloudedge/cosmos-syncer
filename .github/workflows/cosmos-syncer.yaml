@@ -19,10 +19,8 @@ jobs:
     - name: List all modified JSON files
       id: list_files
       run: |
-        list=$(git diff HEAD~ HEAD --name-only -- '*.json')
-        # Join file paths with a comma
-        formatted_list=$(echo "$list" | tr '\n' ',' | sed 's/,$//') # Remove trailing comma
-        echo "MODIFIED_FILES=$formatted_list" >> $GITHUB_OUTPUT
+        list=$(git diff HEAD~ HEAD --name-only -- '*.json' | jq -R -s -c 'split("\n"))
+        echo "modified_files=$list" >> $GITHUB_OUTPUT
         echo "Modified files: $list"
 
     - name: Set up Python
