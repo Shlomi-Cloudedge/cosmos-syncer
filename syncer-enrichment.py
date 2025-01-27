@@ -27,7 +27,7 @@ class GitCosmosDBSynchronizer:
                 continue
 
             container_name, file_name = parts[1], parts[-1]
-
+            # OPTINAL - if we want to ignore unknown containers , comment if we want to add new containers according to the file path
             # # Skip if the container is not valid
             # if container_name not in self.valid_containers:
             #     print(f"Skipping unknown container: {container_name}")
