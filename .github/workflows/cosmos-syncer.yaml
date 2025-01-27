@@ -19,6 +19,7 @@ jobs:
     - name: List all modified JSON files
       id: list_files
       run: |
+        git diff --name-only HEAD~ HEAD | grep '\.json$
         while IFS= read -r file; do
         file_list+=("$file")
         echo "file_list=$file_list"
