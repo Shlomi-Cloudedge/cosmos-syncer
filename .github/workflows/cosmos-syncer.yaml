@@ -3,7 +3,8 @@ name: Cosmos DB Sync
 on:
   push:
     branches:
-      - '*'
+      - 'main'
+      - 'staging'
 
 jobs:
   sync:
@@ -27,4 +28,4 @@ jobs:
         COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
       run: |
-        python sync.py
+        python sync-enrichment.py

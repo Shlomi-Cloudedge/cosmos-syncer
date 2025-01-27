@@ -13,14 +13,14 @@ class GitCosmosDBSynchronizer:
         local_databases = [d for d in os.listdir(self.repo_path) 
                            if os.path.isdir(os.path.join(self.repo_path, d)) and not d.startswith('.')]
 
-        # Delete databases not in local path
-        for db_name in existing_databases:
-            if db_name not in local_databases:
-                try:
-                    self.cosmos_client.delete_database(db_name)
-                    print(f"Deleted database {db_name}")
-                except Exception as e:
-                    print(f"Error deleting database {db_name}: {e}")
+        # # Delete databases not in local path
+        # for db_name in existing_databases:
+        #     if db_name not in local_databases:
+        #         try:
+        #             self.cosmos_client.delete_database(db_name)
+        #             print(f"Deleted database {db_name}")
+        #         except Exception as e:
+        #             print(f"Error deleting database {db_name}: {e}")
 
         # Sync databases and containers
         for database_name in local_databases:
@@ -32,14 +32,14 @@ class GitCosmosDBSynchronizer:
             local_containers = [d for d in os.listdir(database_path) 
                                 if os.path.isdir(os.path.join(database_path, d)) and not d.startswith('.')]
 
-            # Delete containers not in local path
-            for container_name in existing_containers:
-                if container_name not in local_containers:
-                    try:
-                        database.delete_container(container_name)
-                        print(f"Deleted container {container_name} in database {database_name}")
-                    except Exception as e:
-                        print(f"Error deleting container {container_name}: {e}")
+            # # Delete containers not in local path
+            # for container_name in existing_containers:
+            #     if container_name not in local_containers:
+            #         try:
+            #             database.delete_container(container_name)
+            #             print(f"Deleted container {container_name} in database {database_name}")
+            #         except Exception as e:
+            #             print(f"Error deleting container {container_name}: {e}")
 
             # Sync containers
             for container_name in local_containers:
@@ -71,15 +71,15 @@ class GitCosmosDBSynchronizer:
                         except Exception as e:
                             print(f"Error processing {file_path}: {e}")
 
-                # Delete documents not in local files
-                try:
-                    existing_docs = list(container.read_all_items())
-                    for doc in existing_docs:
-                        if doc['id'] not in local_docs:
-                            container.delete_item(item=doc, partition_key=doc['id'])
-                            print(f"Deleted {doc['id']} from {database_name}/{container_name}")
-                except Exception as e:
-                    print(f"Error checking for deletions: {e}")
+                # # Delete documents not in local files
+                # try:
+                #     existing_docs = list(container.read_all_items())
+                #     for doc in existing_docs:
+                #         if doc['id'] not in local_docs:
+                #             container.delete_item(item=doc, partition_key=doc['id'])
+                #             print(f"Deleted {doc['id']} from {database_name}/{container_name}")
+                # except Exception as e:
+                #     print(f"Error checking for deletions: {e}")
 
     def run(self):
         self.sync_repository()
