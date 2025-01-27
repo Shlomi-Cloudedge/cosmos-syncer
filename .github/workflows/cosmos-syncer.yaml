@@ -23,7 +23,7 @@ jobs:
         file_list+=("$file")
         done < <(git diff --name-only HEAD~ HEAD | grep '\.json$')
         echo "MODIFIED_FILES=$file_list" >> $GITHUB_OUTPUT
-        echo "Modified files: $file_list"
+        echo "Modified files: $file_list[*]"
 
     - name: Set up Python
       if: ${{ steps.list_files.outputs.modified_files != '' }}
