@@ -21,7 +21,7 @@ jobs:
       run: |
         git diff --name-only HEAD~ HEAD | grep '\.json$'
         while IFS= read -r file; do
-            file_list+=("$file")
+          file_list+=("$file")
         echo "file_list=$file_list"
         done < <(git diff --name-only HEAD~ HEAD | grep '\.json$')
         echo "MODIFIED_FILES=$file_list" >> $GITHUB_OUTPUT
