@@ -16,21 +16,13 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: List all modified JSON files by paths
+    - name: List all modified JSON files
       id: list_files
       run: |
-        # Get the list of modified JSON files
         list=$(git diff HEAD~ HEAD --name-only -- '*.json')
-    
-        # Split the list into an array based on newlines
-        IFS=$'\n' read -rd '' -a files <<< "$list"
-    
-        # Store the list in GitHub Actions output as a string representation of the array
-        echo "MODIFIED_FILES=(${files[@]})" >> $GITHUB_OUTPUT
-    
-        # Print the files for debugging
-        echo "Modified files: ${files[@]}"
-    
+        splitted_list = $list | tr '\n' ' '
+        echo "modified_files=$splitted_list" >> $GITHUB_OUTPUT
+        echo "Modified files: $splitted_list"
 
     - name: Set up Python
       if: ${{ steps.list_files.outputs.modified_files != '' }}
