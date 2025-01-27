@@ -26,16 +26,24 @@ jobs:
     - name: List modified and new JSON files
       id: list_files
       run: |
-        git diff --name-only --diff-filter=AM ${{ github.event.before }} ${{ github.sha }} | grep '\.json$' || echo "No modified or new JSON files."
-    
+        if [ -z "${{ github.event.before }}" ] || ! git cat-file -e ${{ github.event.before }}; then
+          echo "No valid 'before' commit; checking against parent commit."
+          git diff --name-only --diff-filter=AM HEAD~1 | grep '\.json$' || echo "No modified or new JSON files." > json_files.txt
+        else
+          git diff --name-only --diff-filter=AM ${{ github.event.before }} ${{ github.sha }} | grep '\.json$' || echo "No modified or new JSON files." > json_files.txt
+        fi
+
     - name: Output JSON files
-      if: steps.list_files.outputs.files != '' # Skips if no files are found
       run: |
-        echo "Modified and new JSON files:"
-        git diff --name-only --diff-filter=AM ${{ github.event.before }} ${{ github.sha }} | grep '\.json$'
+        if [ -s json_files.txt ]; then
+          echo "Modified and new JSON files:"
+          cat json_files.txt
+        else
+          echo "No JSON files were modified or added."
+        fi
 
     - name: Sync to Cosmos DB
-      if: steps.list_files.outputs.files != '' # Sync only if files exist
+      if: ${{ always() && steps.list_files.outputs.files != '' }}
       env:
         COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
