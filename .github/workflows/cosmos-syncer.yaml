@@ -19,14 +19,23 @@ jobs:
     - name: List all modified JSON files
       id: list_files
       run: |
-        git diff --name-only HEAD~ HEAD | grep '\.json$'
+        file_list=()
+
+        # Collect JSON files changed between the last two commits
         while IFS= read -r file; do
-          file_list+=("$file")
+        file_list+=("$file")
         done < <(git diff --name-only HEAD~ HEAD | grep '\.json$')
-        for file in "${file_list}"; do
-          echo "Modified file: $file"
+
+        # Print all modified files
+        for file in "${file_list[@]}"; do
+        echo "Modified file: $file"
         done
-        echo "MODIFIED_FILES=$file_list" >> $GITHUB_OUTPUT
+
+        # Join the array elements into a comma-separated string
+        IFS=',' read -r -a joined_files <<< "${file_list[*]}"
+
+        # Export the list as a GitHub Actions output
+        echo "MODIFIED_FILES=${joined_files[*]}" >> "$GITHUB_OUTPUT"
 
     # - name: Set up Python
     #   if: ${{ steps.list_files.outputs.modified_files != '' }}
