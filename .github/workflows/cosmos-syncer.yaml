@@ -21,6 +21,7 @@ jobs:
       run: |
         list=$(git diff HEAD~ HEAD --name-only -- '*.json')
         echo "MODIFIED_FILES={$list}" >> $GITHUB_OUTPUT
+        echo "modified files: $list"
 
 
     - name: Set up Python
