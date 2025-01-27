@@ -12,7 +12,7 @@ class GitCosmosDBSynchronizer:
     def sync_repository(self):
         database = self.cosmos_client.create_database_if_not_exists(id=self.database_name)
 
-        for filename in os.environ.get('MODIFIED_FILES', '').split():
+        for filename in os.environ.get('MODIFIED_FILES'):
             # Remove the repo_path prefix (cosmos-sync/)
             relative_path = os.path.relpath(filename, self.repo_path)
 
