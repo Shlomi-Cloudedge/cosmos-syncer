@@ -10,37 +10,36 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     outputs:
-        MODIFIED_FILES: ${{ steps.list_files.outputs.MODIFIED_FILES }}
+        MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - name: List all modified json files
+    - name: List all modified JSON files
       id: list_files
       run: |
         list=$(git diff HEAD~ HEAD --name-only -- '*.json')
-        echo "MODIFIED_FILES={$list}" >> $GITHUB_OUTPUT
-        echo "modified files: $list"
-
+        echo "modified_files=$list" >> $GITHUB_OUTPUT
+        echo "Modified files: $list"
 
     - name: Set up Python
-      if: ${{ steps.list_files.outputs.MODIFIED_FILES != '[]' }}
+      if: ${{ steps.list_files.outputs.modified_files != '' }}
       uses: actions/setup-python@v3
       with:
         python-version: '3.9'
     
     - name: Install dependencies
-      if: ${{ steps.list_files.outputs.MODIFIED_FILES != '[]' }}
+      if: ${{ steps.list_files.outputs.modified_files != '' }}
       run: |
         python -m pip install --upgrade pip
         pip install azure-cosmos
     
     - name: Sync to Cosmos DB
-      if: ${{ steps.list_files.outputs.MODIFIED_FILES != '[]' }}
+      if: ${{ steps.list_files.outputs.modified_files != '' }}
       env:
         COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
-        MODIFIED_FILES: ${{ steps.list_files.outputs.MODIFIED_FILES }}
+        MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
       run: |
         python syncer-enrichment.py
