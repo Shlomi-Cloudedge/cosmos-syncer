@@ -12,7 +12,11 @@ class GitCosmosDBSynchronizer:
     def sync_repository(self):
         database = self.cosmos_client.create_database_if_not_exists(id=self.database_name)
 
-        modified_files = os.environ.get('MODIFIED_FILES', "").split()
+        modified_files = []
+        for root, dirs, files in os.walk(self.repo_path):
+            for file in files:
+                if file.endswith('.json'):
+                    modified_files.append(os.path.join(root, file))
 
         for filename in modified_files:
             # Remove the repo_path prefix (cosmos-sync/)
