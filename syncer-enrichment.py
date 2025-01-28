@@ -12,11 +12,30 @@ class GitCosmosDBSynchronizer:
     def sync_repository(self):
         database = self.cosmos_client.create_database_if_not_exists(id=self.database_name)
 
+        # Find all items in all containers and list them as a path 
+        cosmos_files = []
+
+        for container_name in self.cosmos_client.get_database_client(self.database_name).list_container_names():
+            container = database.get_container_client(container_name)
+            for item in container.query_items(query="SELECT * FROM c", enable_cross_partition_query=True):
+                cosmos_files.append(f"{container_name}/{item['id']}.json")
+    
+        # Find all JSON files in the repository
+
+
         modified_files = []
         for root, dirs, files in os.walk(self.repo_path):
             for file in files:
                 if file.endswith('.json'):
                     modified_files.append(os.path.join(root, file))
+
+        # If the file is in the Cosmos DB but not in the repository, delete it
+        for filename in cosmos_files:
+            if filename not in modified_files:
+                container_name, file_name = filename.split('/')
+                container = database.get_container_client(container_name)
+                container.delete_item(item=file_name, partition_key=file_name)
+                print(f"Deleted {self.database_name}/{container_name}/{file_name}")
 
         for filename in modified_files:
             # Remove the repo_path prefix (cosmos-sync/)
