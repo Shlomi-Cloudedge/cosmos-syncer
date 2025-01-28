@@ -73,25 +73,30 @@ class GitCosmosDBSynchronizer:
         """
         Delete documents from Cosmos DB that no longer have a corresponding local file.
         """
-        for container_name, doc_ids in synced_docs.items():
-            try:
+        try:
+            # Retrieve all containers in the database
+            containers = list(database.list_containers())
+
+            for container_meta in containers:
+                container_name = container_meta['id']
                 container = database.get_container_client(container_name)
 
                 # Query all documents in the container
                 query = "SELECT c.id FROM c"
                 documents = list(container.query_items(query=query, enable_cross_partition_query=True))
 
-                # Find documents in Cosmos DB that are not in the local repo
+                # Determine which documents are orphaned
                 cosmos_doc_ids = {doc['id'] for doc in documents}
-                orphaned_doc_ids = cosmos_doc_ids - doc_ids
+                local_doc_ids = synced_docs.get(container_name, set())  # Default to an empty set if not in synced_docs
+                orphaned_doc_ids = cosmos_doc_ids - local_doc_ids
 
                 # Delete the orphaned documents
                 for orphaned_id in orphaned_doc_ids:
                     container.delete_item(item=orphaned_id, partition_key=orphaned_id)
                     print(f"Deleted {self.database_name}/{container_name}/{orphaned_id}")
 
-            except Exception as e:
-                print(f"Error processing orphaned documents in {container_name}: {e}")
+        except Exception as e:
+            print(f"Error processing orphaned documents: {e}")
 
     def run(self):
         self.sync_repository()
