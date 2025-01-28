@@ -16,36 +16,43 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: List all modified JSON files
-      id: list_files
-      run: |
-        file_list=()
+    # - name: List all modified JSON files
+    #   id: list_files
+    #   run: |
+    #     file_list=()
 
-        # Collect JSON files changed between the last two commits
-        while IFS= read -r file; do
-        file_list+=("$file")
-        done < <(git diff --name-only HEAD~ HEAD | grep '\.json$')
+    #     # Collect JSON files changed between the last two commits
+    #     while IFS= read -r file; do
+    #     file_list+=("$file")
+    #     done < <(git diff --name-only HEAD~ HEAD | grep '\.json$')
 
-        # Join the array elements into a comma-separated string
-        IFS=',' read -r -a joined_files <<< "${file_list[*]}"
+    #     # Join the array elements into a comma-separated string
+    #     IFS=',' read -r -a joined_files <<< "${file_list[*]}"
 
-        # Export the list as a GitHub Actions output
-        echo "MODIFIED_FILES=${joined_files[*]}" >> "$GITHUB_OUTPUT"
+    #     # Export the list as a GitHub Actions output
+    #     echo "MODIFIED_FILES=${joined_files[*]}" >> "$GITHUB_OUTPUT"
 
     - name: Set up Python
-      if: ${{ steps.list_files.outputs.modified_files != '' }}
       uses: actions/setup-python@v3
       with:
         python-version: '3.9'
     
     - name: Install dependencies
-      if: ${{ steps.list_files.outputs.modified_files != '' }}
       run: |
         python -m pip install --upgrade pip
         pip install azure-cosmos
+
+    - name: Set Cosmos variables
+      run: |
+        if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+          COSMOS_ENDPOINT='${{ secrets.COSMOS_ENDPOINT }}'
+          COSMOS_KEY='${{ secrets.COSMOS_KEY }}'
+        elif [[ ${{ github.ref }} == 'refs/heads/staging' ]]; then
+          COSMOS_ENDPOINT='${{ secrets.COSMOS_ENDPOINT_STAGING }}'
+          COSMOS_KEY='${{ secrets.COSMOS_KEY_STAGING }}'
+        fi
     
     - name: Sync to Cosmos DB
-      if: ${{ steps.list_files.outputs.modified_files != '' }}
       env:
         COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
