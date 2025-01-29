@@ -68,7 +68,7 @@ class GitCosmosDBSynchronizer:
 
         # Check for and delete orphaned documents
         self.delete_orphaned_documents(database, synced_docs)
-        self.delete_orphaned_containers(database)
+        # self.delete_orphaned_containers(database)
 
     def delete_orphaned_containers(self, database):
         """
