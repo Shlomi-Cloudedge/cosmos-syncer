@@ -48,11 +48,11 @@ jobs:
       id: cosmos_vars
       run: |
         if [[ ${{ github.ref_name }} == 'main' ]]; then
-          echo COSMOS_ENDPOINT= ${{ secrets.COSMOS_ENDPOINT_MAIN }} >> $GITHUB_ENV
-          echo COSMOS_KEY= ${{ secrets.COSMOS_KEY_MAIN }} >> $GITHUB_ENV
+          echo COSMOS_ENDPOINT=${{ secrets.COSMOS_ENDPOINT_MAIN }} >> $GITHUB_ENV
+          echo COSMOS_KEY=${{ secrets.COSMOS_KEY_MAIN }} >> $GITHUB_ENV
         elif [[ ${{ github.ref_name }} == 'staging' ]]; then
-          echo COSMOS_ENDPOINT= ${{ secrets.COSMOS_ENDPOINT }} >> $GITHUB_ENV
-          echo COSMOS_KEY= ${{ secrets.COSMOS_KEY }} >> $GITHUB_ENV
+          echo COSMOS_ENDPOINT=${{ secrets.COSMOS_ENDPOINT }} >> $GITHUB_ENV
+          echo COSMOS_KEY=${{ secrets.COSMOS_KEY }} >> $GITHUB_ENV
         fi
     - name: Sync to Cosmos DB
       # if: ${{ steps.list_files.outputs.modified_files != '' }}
