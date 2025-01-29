@@ -10,8 +10,8 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    outputs:
-        MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
+    # outputs:
+    #     MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
     steps:
     - uses: actions/checkout@v3
       with:

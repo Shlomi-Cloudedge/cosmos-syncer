@@ -9,8 +9,8 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    outputs:
-        MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
+    # outputs:
+    #     MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -45,11 +45,11 @@ jobs:
     - name: Set Cosmos variables
       run: |
         if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+          COSMOS_ENDPOINT='${{ secrets.COSMOS_ENDPOINT_MAIN }}'
+          COSMOS_KEY='${{ secrets.COSMOS_KEY_MAIN }}'
+        elif [[ ${{ github.ref }} == 'refs/heads/staging' ]]; then
           COSMOS_ENDPOINT='${{ secrets.COSMOS_ENDPOINT }}'
           COSMOS_KEY='${{ secrets.COSMOS_KEY }}'
-        elif [[ ${{ github.ref }} == 'refs/heads/staging' ]]; then
-          COSMOS_ENDPOINT='${{ secrets.COSMOS_ENDPOINT_STAGING }}'
-          COSMOS_KEY='${{ secrets.COSMOS_KEY_STAGING }}'
         fi
     
     - name: Sync to Cosmos DB
