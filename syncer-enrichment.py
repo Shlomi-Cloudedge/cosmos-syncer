@@ -68,6 +68,7 @@ class GitCosmosDBSynchronizer:
 
         # Check for and delete orphaned documents
         self.delete_orphaned_documents(database, synced_docs)
+        self.delete_orphaned_containers(database)
 
 
     def delete_orphaned_containers(self, database):
@@ -91,7 +92,7 @@ class GitCosmosDBSynchronizer:
         except Exception as e:
             print(f"Error processing orphaned containers: {e}")
 
-            
+
     def delete_orphaned_documents(self, database, synced_docs):
         """
         Delete documents from Cosmos DB that no longer have a corresponding local file.
