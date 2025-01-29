@@ -45,12 +45,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install azure-cosmos
     
-    # - name: Sync to Cosmos DB
-    #   # if: ${{ steps.list_files.outputs.modified_files != '' }}
-    #   env:
-    #     COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
-    #     COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
-    #     MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
-    #     COSMOS_DB_NAME: ${{ github.ref_name }}
-    #   run: |
-    #     python syncer-enrichment.py
+    - name: Sync to Cosmos DB
+      # if: ${{ steps.list_files.outputs.modified_files != '' }}
+      env:
+        COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
+        COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
+        MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
+        COSMOS_DB_NAME: ${{ github.ref_name }}
+      run: |
+        python syncer-enrichment.py
