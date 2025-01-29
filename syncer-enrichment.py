@@ -68,31 +68,6 @@ class GitCosmosDBSynchronizer:
 
         # Check for and delete orphaned documents
         self.delete_orphaned_documents(database, synced_docs)
-        # self.delete_orphaned_containers(database)
-
-    def delete_orphaned_containers(self, database):
-        """
-        Delete containers from Cosmos DB that no longer have a corresponding local directory.
-        """
-        try:
-            # Retrieve all containers in the database
-            containers = list(database.list_containers())
-
-            # Determine which containers are orphaned
-            cosmos_containers = {container['id'] for container in containers}
-            local_containers = set(self.valid_containers)
-            orphaned_containers = cosmos_containers - local_containers
-
-            # Delete the orphaned containers
-            for orphaned_container in orphaned_containers:
-                if orphaned_container not in self.valid_containers:
-                    database.delete_container(orphaned_container)
-                    print(f"Deleted {self.database_name}/{orphaned_container}")
-                else:
-                    print(f"Skipping valid container: {orphaned_container} - this container should not be deleted")
-
-        except Exception as e:
-            print(f"Error processing orphaned containers: {e}")
 
     def delete_orphaned_documents(self, database, synced_docs):
         """
