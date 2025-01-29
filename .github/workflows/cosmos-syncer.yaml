@@ -62,6 +62,6 @@ jobs:
         COSMOS_ENDPOINT: ${{ steps.cosmos_vars.outputs.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ steps.cosmos_vars.outputs.COSMOS_KEY }}
         MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
-        COSMOS_DB_NAME: ${{ github.ref_name }}
+        COSMOS_DB_NAME: "conifers"
       run: |
         python syncer-enrichment.py
