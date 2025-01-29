@@ -14,16 +14,16 @@ class GitCosmosDBSynchronizer:
         database = self.cosmos_client.create_database_if_not_exists(id=self.database_name)
 
         # Collect all local JSON files
-        files = []
+        modified_files = []
         for root, dirs, files in os.walk(self.repo_path):
             for file in files:
                 if file.endswith('.json'):
-                    files.append(os.path.join(root, file))
+                    modified_files.append(os.path.join(root, file))
 
         # Keep track of synced document IDs for deletion checks
         synced_docs = {}
 
-        for filename in files:
+        for filename in modified_files:
             # Remove the repo_path prefix
             relative_path = filename.replace(self.repo_path + os.sep, "")
 
