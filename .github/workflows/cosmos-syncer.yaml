@@ -34,6 +34,21 @@ jobs:
     #     # Export the list as a GitHub Actions output
     #     echo "MODIFIED_FILES=${joined_files[*]}" >> "$GITHUB_OUTPUT"
 
+  # Json files validation test
+    - name: Test JSON validity
+      id: json_test
+      run: |
+        echo "Checking all JSON files validity..."
+        find . -type f -name "*.json" -not -path "./.git/*" | while read file; do
+          echo "Validating $file"
+          if python -m json.tool "$file" > /dev/null; then
+            echo "✓ $file is valid JSON"
+          else
+            echo "::error::Invalid JSON in $file"
+            exit 1
+          fi
+        done
+
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
