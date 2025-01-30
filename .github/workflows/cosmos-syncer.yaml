@@ -1,13 +1,11 @@
 name: Cosmos DB Sync
 
 on:
-  push:
-    branches:
-      - 'main'
-      - 'staging'
+  workflow_dispatch:
 
 jobs:
   sync:
+    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
     outputs:
         MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
