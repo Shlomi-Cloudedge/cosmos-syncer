@@ -1,14 +1,11 @@
-name: Cosmos DB Sync
+name: Cosmos DB Sync - Research
 
 on:
-  push:
-    branches:
-      - '**'
-      - '!main'
-      - '!staging'
+  workflow_dispatch:
 
 jobs:
   sync:
+    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
     # outputs:
     #     MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
@@ -35,6 +32,7 @@ jobs:
 
   # Json files validation test
     - name: Test JSON validity
+      if: github.ref_name != 'main' || github.ref_name != 'staging'
       id: json_test
       run: |
         echo "Checking all JSON files validity..."
