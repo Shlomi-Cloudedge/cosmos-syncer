@@ -8,7 +8,7 @@ class GitCosmosDBSynchronizer:
         self.repo_path = repo_path
         self.cosmos_client = CosmosClient(cosmos_endpoint, credential=cosmos_key)
         self.database_name = db_name
-        self.valid_containers = ["enrichment", "enrichment_attributes"]
+        self.protected_containers = ["enrichment", "enrichment_attributes" , "credentials" , "events" , "knowlage_base" , "tenants" , "ticket_feedback_setting" , "slack_installation"]
 
     def sync_repository(self):
         database = self.cosmos_client.create_database_if_not_exists(id=self.database_name)
@@ -68,10 +68,10 @@ class GitCosmosDBSynchronizer:
 
         # Check for and delete orphaned documents
         self.delete_orphaned_documents(database, synced_docs)
-        self.delete_orphaned_containers(database , self.valid_containers)
+        self.delete_orphaned_containers(database , self.protected_containers)
 
 
-    def delete_orphaned_containers(self, database , valid_containers):
+    def delete_orphaned_containers(self, database , protected_containers):
         """
         Delete containers from Cosmos DB that no longer have a corresponding local directory.
         """
@@ -81,12 +81,12 @@ class GitCosmosDBSynchronizer:
 
             # Determine which containers are orphaned
             cosmos_container_names = {container['id'] for container in containers}
-            local_container_names = set(self.valid_containers)
+            local_container_names = set(self.protected_containers)
             orphaned_container_names = cosmos_container_names - local_container_names
 
             # Delete the orphaned containers
             for orphaned_name in orphaned_container_names:
-                if orphaned_name not in self.valid_containers:
+                if orphaned_name not in self.protected_containers:
                     database.delete_container(container=orphaned_name)
                     print(f"Deleted {self.database_name}/{orphaned_name}")
 
