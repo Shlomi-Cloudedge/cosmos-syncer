@@ -67,7 +67,7 @@ class GitCosmosDBSynchronizer:
                 print(f"Error processing {filename}: {e}")
 
         # Check for and delete orphaned documents
-        self.delete_orphaned_documents(database, synced_docs)
+        self.delete_orphaned_documents(database, synced_docs , self.protected_containers)
         self.delete_orphaned_containers(database , self.protected_containers)
 
 
