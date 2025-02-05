@@ -5,7 +5,6 @@ on:
 
 jobs:
   sync:
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
         MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
