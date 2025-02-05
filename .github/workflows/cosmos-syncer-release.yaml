@@ -2,6 +2,7 @@ name: Cosmos DB Sync - Release
 
 on:
   release:
+    types: [published]
 
 jobs:
   sync:
