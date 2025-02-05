@@ -1,0 +1,12 @@
+name: Branch Deleted
+
+on:
+  delete:
+
+jobs:
+  branch-deleted:
+    runs-on: ubuntu-latest
+    if: github.event.ref_type == 'branch'  # Ensure it only triggers for branch deletions
+    steps:
+      - name: Display Deleted Branch
+        run: echo "Branch '${{ github.event.ref }}' has been deleted from the repository."
