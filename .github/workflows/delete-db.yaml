@@ -21,10 +21,10 @@ jobs:
             python -m pip install --upgrade pip
             pip install azure-cosmos
 
-            
+
       - name: Delete Cosmos DB database
         run: python db-delete.py
         env:
           COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
           COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
-          COSMOS_DB_NAME: ${{ github.ref_name }}
+          COSMOS_DB_NAME: ${{ github.event.ref }}
