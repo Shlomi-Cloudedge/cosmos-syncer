@@ -23,10 +23,6 @@ def delete_database(database_name: str , cosmos_endpoint: str , cosmos_key: str)
         sys.exit(1)
 
 if __name__ == "__main__":
-    # Ensure the branch/database name is provided as an argument
-    if len(sys.argv) != 2:
-        print("Usage: python delete_db.py <branch-name>")
-        sys.exit(1)
     
     branch_name = os.getenv("COSMOS_DB_NAME")
     cosmos_endpoint = os.environ.get("COSMOS_ENDPOINT")
