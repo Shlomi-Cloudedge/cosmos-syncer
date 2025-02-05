@@ -1,11 +1,11 @@
-name: Cosmos DB Sync
+name: Cosmos DB Sync - Staging
 
 on:
   workflow_dispatch:
 
 jobs:
   sync:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     outputs:
         MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
@@ -60,13 +60,9 @@ jobs:
     - name: Set up Cosmos DB variables
       id: cosmos_vars
       run: |
-        if [[ ${{ github.ref_name }} == 'main' ]]; then
-          echo COSMOS_ENDPOINT=${{ secrets.COSMOS_ENDPOINT_MAIN }} >> $GITHUB_OUTPUT
-          echo COSMOS_KEY=${{ secrets.COSMOS_KEY_MAIN }} >> $GITHUB_OUTPUT
-        elif [[ ${{ github.ref_name }} == 'staging' ]]; then
           echo COSMOS_ENDPOINT=${{ secrets.COSMOS_ENDPOINT }} >> $GITHUB_OUTPUT
           echo COSMOS_KEY=${{ secrets.COSMOS_KEY }} >> $GITHUB_OUTPUT
-        fi
+          
     - name: Sync to Cosmos DB
       env:
         COSMOS_ENDPOINT: ${{ steps.cosmos_vars.outputs.COSMOS_ENDPOINT }}
