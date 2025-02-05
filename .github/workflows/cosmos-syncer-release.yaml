@@ -1,4 +1,4 @@
-name: Cosmos DB Sync
+name: Cosmos DB Sync - Release
 
 on:
   release:
