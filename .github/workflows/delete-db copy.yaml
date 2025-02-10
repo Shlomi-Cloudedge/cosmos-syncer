@@ -1,0 +1,31 @@
+name: Delete Cosmos DB Database on Branch Deletion - Research
+
+on:
+  delete:
+
+jobs:
+  delete-database:
+    if: github.event.ref_type == 'branch' && github.event.ref != 'staging' && github.event.ref != 'main'
+    # Only run if a branch was deleted and it's not staging or main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+            python -m pip install --upgrade pip
+            pip install azure-cosmos
+
+
+      - name: Delete Cosmos DB database
+        run: python db-delete.py
+        env:
+          COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT_RESEARCH }}
+          COSMOS_KEY: ${{ secrets.COSMOS_KEY_RESEARCH }}
+          COSMOS_DB_NAME: ${{ github.event.ref }}

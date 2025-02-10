@@ -1,0 +1,67 @@
+{
+    "tenant_id": "c3fdceb6-e7ff-4741-9d89-1fe61f2d11b1",
+    "siem_type": "securonix",
+    "enrichments": {
+        "auth_record": {
+            "query_templates": [
+                {
+                    "value": "sourceusername = \"{entity_value}\"",
+                    "attributes": {
+                        "entity_value": "user_name"
+                    },
+                    "index": "Unity_windows",
+                    "field_mapping": "[].{timestamp: to_number(datetime), source_ip: sourceaddress||ipaddress, src_ip_country_code: customstring43, src_ip_country_name: eventcountry, src_ip_city: eventcity, src_ip_state: customstring9, application: customstring64, application_display_name: devicecustomstring2||customstring, device_os_name: customstring12||customstring58, device_browser: customstring53||requestclientapplication, user_agent: devicecustomfloatingpoint1label, device_hostname: sourcehostname, mfa_data: customstring35, success: categoryoutcome == 'Success', auth_service: resourcetype, device_id: deviceexternalid, username: sourceusername, username_display_name: customstring7, username_raw: accountname, device_trust_type: customstring37, error_code: resourcecustomfield3||baseeventid, error_message: message, resource_name: resourcename, type: categoryobject,extended_properties_request_type: requestcontext}"
+                },
+                {
+                    "value": "baseeventid in (4624, 4625) and destinationusername = \"{entity_value}\"",
+                    "attributes": {
+                        "entity_value": "user_name"
+                    },
+                    "index": "Unity_windows",
+                    "field_mapping": "[].{timestamp: to_number(datetime), source_ip: sourceaddress||ipaddress, src_ip_country_code: customstring43, src_ip_country_name: eventcountry, src_ip_city: eventcity, src_ip_state: customstring9, application: customstring64, application_display_name: devicecustomstring2||customstring, device_os_name: customstring12||customstring58, device_browser: customstring53||requestclientapplication, user_agent: devicecustomfloatingpoint1label, device_hostname: sourcehostname, mfa_data: customstring35, success: categoryoutcome == 'Success', auth_service: resourcetype, device_id: deviceexternalid, username: destinationusername, username_display_name: customstring7, username_raw: accountname, device_trust_type: customstring37, error_code: resourcecustomfield3||baseeventid, error_message: message, resource_name: resourcename, type: categoryobject,extended_properties_request_type: requestcontext}"
+                }
+            ]
+        },
+        "geographical_auth_history": {
+            "query_templates": [
+                {
+                    "value": "sourceusername = \"{entity_value}\"",
+                    "attributes": {
+                        "entity_value": "user_name"
+                    },
+                    "index": "Unity_windows",
+                    "field_mapping": "[].{timestamp: to_number(datetime), source_ip: sourceaddress||ipaddress,  src_ip_country_code: customstring43, device_id: deviceexternalid}"
+                },
+                {
+                    "value": "baseeventid in (4624, 4625) and destinationusername = \"{entity_value}\"",
+                    "attributes": {
+                        "entity_value": "user_name"
+                    },
+                    "index": "Unity_windows",
+                    "field_mapping": "[].{timestamp: to_number(datetime), source_ip: sourceaddress||ipaddress,  src_ip_country_code: customstring43, device_id: deviceexternalid}"
+                }
+            ],
+            "start_time_modifier": "-P30D"
+        },
+        "ip_history": {
+            "query_templates": [
+                {
+                    "value": "sourceaddress = \"{entity_value}\"",
+                    "attributes": {
+                        "entity_value": "ip_address"
+                    },
+                    "index": "Unity_windows",
+                    "field_mapping": "[].{timestamp: to_number(datetime), source_ip: sourceaddress||ipaddress, src_ip_country_code: customstring43, src_ip_country_name: eventcountry, src_ip_city: eventcity, src_ip_state: customstring9, application: customstring64, application_display_name: devicecustomstring2||customstring, device_os_name: customstring12||customstring58, device_browser: customstring53||requestclientapplication, user_agent: devicecustomfloatingpoint1label, device_hostname: sourcehostname, mfa_data: customstring35, success: categoryoutcome == 'Success', auth_service: resourcetype, device_id: deviceexternalid, username: sourceusername, username_display_name: customstring7, username_raw: accountname, device_trust_type: customstring37, error_code: resourcecustomfield3||baseeventid, error_message: message, resource_name: resourcename, type: categoryobject,extended_properties_request_type: requestcontext}"
+                },
+                {
+                    "value": "baseeventid in (4624, 4625) and sourceaddress = \"{entity_value}\"",
+                    "attributes": {
+                        "entity_value": "ip_address"
+                    },
+                    "index": "Unity_windows",
+                    "field_mapping": "[].{timestamp: to_number(datetime), source_ip: sourceaddress||ipaddress, src_ip_country_code: customstring43, src_ip_country_name: eventcountry, src_ip_city: eventcity, src_ip_state: customstring9, application: customstring64, application_display_name: devicecustomstring2||customstring, device_os_name: customstring12||customstring58, device_browser: customstring53||requestclientapplication, user_agent: devicecustomfloatingpoint1label, device_hostname: sourcehostname, mfa_data: customstring35, success: categoryoutcome == 'Success', auth_service: resourcetype, device_id: deviceexternalid, username: destinationusername, username_display_name: customstring7, username_raw: accountname, device_trust_type: customstring37, error_code: resourcecustomfield3||baseeventid, error_message: message, resource_name: resourcename, type: categoryobject,extended_properties_request_type: requestcontext}"
+                }
+            ]
+        }
+    }
+}

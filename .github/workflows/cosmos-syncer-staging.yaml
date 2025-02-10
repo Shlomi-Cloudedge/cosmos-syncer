@@ -1,14 +1,14 @@
-name: Cosmos DB Sync
+name: Cosmos DB Sync - Staging
 
 on:
   workflow_dispatch:
 
 jobs:
   sync:
-    if: github.ref == 'refs/heads/main' && github.ref == 'refs/heads/staging'
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     outputs:
-        MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
+      #  MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
         COSMOS_ENDPOINT: ${{ steps.cosmos_vars.outputs.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ steps.cosmos_vars.outputs.COSMOS_KEY }}
     steps:
@@ -31,8 +31,20 @@ jobs:
 
     #     # Export the list as a GitHub Actions output
     #     echo "MODIFIED_FILES=${joined_files[*]}" >> "$GITHUB_OUTPUT"
-
+    
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install azure-cosmos
+        
   # Json files validation test
+
+    # Json files validation test
     - name: Test JSON validity
       id: json_test
       run: |
@@ -46,32 +58,18 @@ jobs:
             exit 1
           fi
         done
-
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.9'
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install azure-cosmos
     
     - name: Set up Cosmos DB variables
       id: cosmos_vars
       run: |
-        if [[ ${{ github.ref_name }} == 'main' ]]; then
-          echo COSMOS_ENDPOINT=${{ secrets.COSMOS_ENDPOINT_MAIN }} >> $GITHUB_OUTPUT
-          echo COSMOS_KEY=${{ secrets.COSMOS_KEY_MAIN }} >> $GITHUB_OUTPUT
-        elif [[ ${{ github.ref_name }} == 'staging' ]]; then
-          echo COSMOS_ENDPOINT=${{ secrets.COSMOS_ENDPOINT }} >> $GITHUB_OUTPUT
-          echo COSMOS_KEY=${{ secrets.COSMOS_KEY }} >> $GITHUB_OUTPUT
-        fi
+          echo COSMOS_ENDPOINT=${{ secrets.COSMOS_ENDPOINT_STAGING }} >> $GITHUB_OUTPUT
+          echo COSMOS_KEY=${{ secrets.COSMOS_KEY_STAGING }} >> $GITHUB_OUTPUT
+          
     - name: Sync to Cosmos DB
       env:
         COSMOS_ENDPOINT: ${{ steps.cosmos_vars.outputs.COSMOS_ENDPOINT }}
         COSMOS_KEY: ${{ steps.cosmos_vars.outputs.COSMOS_KEY }}
-        MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
+       # MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
         COSMOS_DB_NAME: "conifers"
       run: |
         python syncer-enrichment.py
