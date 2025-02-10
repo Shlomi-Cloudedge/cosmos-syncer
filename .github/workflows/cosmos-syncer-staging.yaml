@@ -7,10 +7,6 @@ jobs:
   sync:
     if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
-    outputs:
-      #  MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
-        COSMOS_ENDPOINT: ${{ steps.cosmos_vars.outputs.COSMOS_ENDPOINT }}
-        COSMOS_KEY: ${{ steps.cosmos_vars.outputs.COSMOS_KEY }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -58,17 +54,11 @@ jobs:
             exit 1
           fi
         done
-    
-    - name: Set up Cosmos DB variables
-      id: cosmos_vars
-      run: |
-          echo COSMOS_ENDPOINT=${{ secrets.COSMOS_ENDPOINT_STAGING }} >> $GITHUB_OUTPUT
-          echo COSMOS_KEY=${{ secrets.COSMOS_KEY_STAGING }} >> $GITHUB_OUTPUT
           
     - name: Sync to Cosmos DB
       env:
-        COSMOS_ENDPOINT: ${{ steps.cosmos_vars.outputs.COSMOS_ENDPOINT }}
-        COSMOS_KEY: ${{ steps.cosmos_vars.outputs.COSMOS_KEY }}
+        COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT_STAGING }}
+        COSMOS_KEY: ${{ secrets.COSMOS_KEY_STAGING }}
        # MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
         COSMOS_DB_NAME: "conifers"
       run: |
