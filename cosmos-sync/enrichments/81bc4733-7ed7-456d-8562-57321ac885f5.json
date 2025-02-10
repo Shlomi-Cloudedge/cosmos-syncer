@@ -1,0 +1,103 @@
+{
+    "id": "81bc4733-7ed7-456d-8562-57321ac885f5",
+    "tenant_id": "ba089807-1bbc-4ebf-a37d-41f5c34b52fe",
+    "siem_type": "sumo_logic",
+    "enrichments": {
+        "asset_access": {
+            "query_templates": [
+                {
+                    "value": "(_index=sec_record_authentication objectType=authentication _sourcename = \"Security\") | toLowerCase(user_username) as user_username | where user_username = toLowerCase(\"{username}\")",
+                    "attributes": {
+                        "username": "user_name"
+                    },
+                    "raw_data_parsers": [
+                        {
+                            "type": "json",
+                            "src_field": "_raw"
+                        }
+                    ],
+                    "target": "messages",
+                    "field_mapping": "[].{source_asset: srcdevice_hostname, destination_asset: device_hostname, source_asset_address: srcdevice_ip, destination_asset_address: `null`, user_account: user_username_raw, user_name: user_username, user_domain: _raw.\"EventData.TargetDomainName\", new_authentication: `null`, service: application, source_name: `null`, event_code: _raw.EventID, computer_name: _raw.Computer, sid: `null`, success: success, is_domain_controller: `null`, timestamp: _messagetime}"
+                }
+            ]
+        },
+        "open_ports": {
+            "query_templates": [
+                {
+                    "value": "_index=sec_record_network | where dstdevice_ip = \"{ip_addr}\" | count by dstDevice_ip, dstPort",
+                    "attributes": {
+                        "ip_addr": "internal_ip_adrr"
+                    },
+                    "target": "records",
+                    "field_mapping": "[?dstport != ``].{device_ip: dstdevice_ip, port_number: dstport, count: _count}"
+                }
+            ]
+        },
+        "auth_record": {
+            "query_templates": [
+                {
+                    "value": "_index=sec_record_authentication objectType=Authentication AND NOT srcDevice_ip_asnOrg = \"Netskope Inc\" | where user_username = \"{username}\" AND !(!success) | limit 7000",
+                    "attributes": {
+                        "username": "user_name"
+                    },
+                    "target": "messages",
+                    "field_mapping": "[].map.{timestamp: to_number(timestamp), source_ip: srcdevice_ip, src_ip_asn_number: srcdevice_ip_asnnumber, src_ip_asn_name: srcdevice_ip_asnorg, src_ip_country_code: srcdevice_ip_countrycode, src_ip_country_name: srcdevice_ip_countryname, application: application, application_display_name: raw.appDisplayName, device_os_name: device_osname || raw.OS || raw.DeviceProperties[?Name=='OS'].Value | [0], auth_service: _sourcecategory, user_agent: useragent || browser_ua || http_useragent || raw.userAgent || raw.ExtendedProperties[?Name=='UserAgent'].Value | [0], device_hostname: device_hostname || raw.DeviceProperties[?Name=='DisplayName'].Value | [0], mfa_data: mfa_data, success: success, sign_in_event_type: raw.signInEventTypes[1], device_id: device_id || raw.deviceDetail.deviceId || raw.DeviceProperties[?Name=='Id'].Value | [0], device_name: raw.device_name || raw.deviceDetail.displayName || raw.DeviceProperties[?Name=='DisplayName'].Value | [0], username: user_username, username_raw: user_username_raw, device_is_compliant: raw.deviceDetail.isCompliant || raw.DeviceProperties[?Name=='IsCompliant'].Value | [0], device_is_managed: raw.deviceDetail.isManaged || raw.DeviceProperties[?Name=='IsCompliantAndManaged'].Value | [0], device_trust_type: raw.deviceDetail.trustType || raw.TrustType || raw.DeviceProperties[?Name=='TrustType'].Value | [0]}"
+                }
+            ]
+        },
+        "asset_history": {
+            "query_templates": [
+                {
+                    "value": "(_index=sec_record_authentication objectType=authentication) | toLowerCase(device_hostname) as device_hostname | where device_hostname matches \"{asset_name}*\"",
+                    "attributes": {
+                        "asset_name": "asset_name"
+                    },
+                    "raw_data_parsers": [
+                        {
+                            "type": "json",
+                            "src_field": "_raw"
+                        }
+                    ],
+                    "target": "messages",
+                    "field_mapping": "[].{source_asset: srcdevice_hostname, destination_asset: device_hostname, source_asset_address: srcdevice_ip, destination_asset_address: `null`, user_account: user_username_raw, user_name: user_username, user_domain: _raw.\"EventData.TargetDomainName\", new_authentication: `null`, service: application, source_name: `null`, event_code: _raw.EventID, computer_name: _raw.Computer, sid: `null`, success: success, is_domain_controller: `null`, timestamp: _messagetime}"
+                }
+            ]
+        },
+        "user_count_by_asn": {
+            "query_templates": [
+                {
+                    "value": "_index=sec_record_* objectType=Authentication | where srcDevice_ip_asnNumber = \"{asn}\" AND !(!success) | count by user_username | limit 7000",
+                    "attributes": {
+                        "asn": "ip_asn_number"
+                    },
+                    "target": "records",
+                    "field_mapping": "[].{username: user_username, count: _count}"
+                }
+            ]
+        },
+        "geographical_auth_history": {
+            "query_templates": [
+                {
+                    "value": "_index=sec_record_* objectType=Authentication | where user_username = \"{username}\" AND !(!success) | count by srcDevice_ip_countryCode, srcDevice_ip_asnNumber, srcDevice_ip_asnOrg, srcDevice_ip | limit 7000",
+                    "attributes": {
+                        "username": "user_name"
+                    },
+                    "target": "records",
+                    "field_mapping": "[?dstport != ``].{source_ip: srcdevice_ip, src_ip_asn_number: srcdevice_ip_asnnumber, src_ip_asn_name: srcdevice_ip_asnorg, src_ip_country_code: srcdevice_ip_countrycode, count: _count }"
+                }
+            ]
+        },
+        "ip_history": {
+            "query_templates": [
+                {
+                    "value": "(_index=sec_record_* objectType=*) AND srcDevice_ip =\"{src_ip}\" AND !(!success) | parse regex \"\\\"status\\.additionalDetails\\\":\\\"(?<mfa_data>[^\\\"\\\\]*)\\\"\" nodrop | count by user_username, user_username_raw, objecttype, device_ip_isinternal, application, _sourcecategory, action, http_useragent, device_osname, success, srcdevice_ip_countrycode, srcdevice_ip_asnnumber, srcdevice_ip_asnorg, mfa_data | limit 7000",
+                    "attributes": {
+                        "src_ip": "ip_address"
+                    },
+                    "target": "records",
+                    "field_mapping": "[].map.{type: objecttype, username: user_username, username_raw: user_username_raw, src_ip_asn_number: srcdevice_ip_asnnumber, src_ip_asn_name: srcdevice_ip_asnorg, src_ip_country_code: srcdevice_ip_countrycode, application: application, category: _sourcecategory, action: action, internal: device_ip_isinternal, device_os_name: device_osname, user_agent: http_useragent, success: success, count: _count, mfa_data: mfa_data}"
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,5 @@
+{
+    "id": "ip_asn_number",
+    "type": "ip",
+    "name": "asn_number"
+}

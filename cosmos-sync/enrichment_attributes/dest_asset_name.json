@@ -1,0 +1,5 @@
+{
+    "id": "dest_asset_name",
+    "type": "network_event",
+    "name": "dest_asset_name"
+}

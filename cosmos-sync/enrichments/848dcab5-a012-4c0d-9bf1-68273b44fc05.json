@@ -1,0 +1,101 @@
+{
+    "id": "848dcab5-a012-4c0d-9bf1-68273b44fc05",
+    "tenant_id": "18155999-22de-4b55-b305-cd82fe18553e",
+    "siem_type": "elasticsearch",
+    "enrichments": {
+        "auth_record": {
+            "query_templates": [
+                {
+                    "value": "{{\"bool\" : {{\"must\" : [{{\"range\": {{\"@timestamp\": {{\"gte\": \"{start_time}\", \"lte\": \"{end_time}\"}}}}}}, {{\"match_phrase\" : {{\"Duo.user.name\" : \"{entity_value}\"}}}}]}}}}",
+                    "attributes": {
+                        "entity_value": "user_name",
+                        "start_time": "start_time",
+                        "end_time": "end_time"
+                    },
+                    "index": "1000-duosecurity_logs",
+                    "field_mapping": "[]._source.{timestamp: \"@timestamp\"||Azure.createdDateTime||Duo.isotimestamp, source_ip: Azure.ipAddress||Azure.source.ip||Duo.auth_device.ip||Duo.access_device.ip, src_ip_asn_number: Azure.autonomousSystemNumber, src_ip_country_code: Azure.location.countryOrRegion, src_ip_country_name: Duo.auth_device.location.country||Duo.access_device.location.country, src_ip_city: Azure.location.city||Duo.auth_device.location.city||Duo.access_device.location.city, src_ip_state: Azure.location.state||Duo.auth_device.location.state||Duo.access_device.location.state, application: Azure.clientAppUsed||Duo.application.name, application_display_name: Azure.appDisplayName, device_os_name: Azure.deviceDetail.operatingSystem, device_browser: Azure.deviceDetail.browser, user_agent: Azure.userAgent, device_hostname: Azure.deviceDetail.deviceDisplayName||Azure.deviceDetail.displayName||Duo.auth_device.hostname, is_interactive: Azure.isInteractive, mfa_data: Azure.status.additionalDetails||Duo.reason, success: to_string(Azure.status.errorCode) == '0'||Duo.result == 'success', auth_service: event.dataset||service, device_id: Azure.deviceDetail.deviceId, device_name: Azure.deviceDetail.deviceDisplayName || Azure.deviceDetail.displayName, username: Azure.userPrincipalName, username_display_name: Azure.userDisplayName||Duo.alias, username_raw: Duo.email||user.username, device_is_compliant: Azure.deviceDetail.isCompliant, device_is_managed: Azure.deviceDetail.isManaged, device_trust_type: Azure.deviceDetail.trustType, authentication_requirement: Azure.authenticationRequirement||Duo.factor, error_code: to_string(Azure.status.errorCode), error_message: Azure.status.failureReason||Duo.reason, resource_name: Azure.resourceDisplayName, normalized_trust_type: Azure.deviceDetail.trustType, auth_type: Duo.factor}"
+                },
+                {
+                    "value": "{{\"bool\" : {{\"must\" : [{{\"range\": {{\"@timestamp\": {{\"gte\": \"{start_time}\", \"lte\": \"{end_time}\"}}}}}}, {{\"match_phrase\" : {{\"Azure.userPrincipalName\" : \"{entity_value}\"}}}}]}}}}",
+                    "attributes": {
+                        "entity_value": "user_name",
+                        "start_time": "start_time",
+                        "end_time": "end_time"
+                    },
+                    "index": "1000-msazure_signins",
+                    "field_mapping": "[]._source.{timestamp: \"@timestamp\"||Azure.createdDateTime||Duo.isotimestamp, source_ip: Azure.ipAddress||Azure.source.ip||Duo.auth_device.ip||Duo.access_device.ip, src_ip_asn_number: Azure.autonomousSystemNumber, src_ip_country_code: Azure.location.countryOrRegion, src_ip_country_name: Duo.auth_device.location.country||Duo.access_device.location.country, src_ip_city: Azure.location.city||Duo.auth_device.location.city||Duo.access_device.location.city, src_ip_state: Azure.location.state||Duo.auth_device.location.state||Duo.access_device.location.state, application: Azure.clientAppUsed||Duo.application.name, application_display_name: Azure.appDisplayName, device_os_name: Azure.deviceDetail.operatingSystem, device_browser: Azure.deviceDetail.browser, user_agent: Azure.userAgent, device_hostname: Azure.deviceDetail.deviceDisplayName||Azure.deviceDetail.displayName||Duo.auth_device.hostname, is_interactive: Azure.isInteractive, mfa_data: Azure.status.additionalDetails||Duo.reason, success: to_string(Azure.status.errorCode) == '0'||Duo.result == 'success', auth_service: event.dataset||service, device_id: Azure.deviceDetail.deviceId, device_name: Azure.deviceDetail.deviceDisplayName || Azure.deviceDetail.displayName, username: Azure.userPrincipalName, username_display_name: Azure.userDisplayName||Duo.alias, username_raw: Duo.email||user.username, device_is_compliant: Azure.deviceDetail.isCompliant, device_is_managed: Azure.deviceDetail.isManaged, device_trust_type: Azure.deviceDetail.trustType, authentication_requirement: Azure.authenticationRequirement||Duo.factor, error_code: to_string(Azure.status.errorCode), error_message: Azure.status.failureReason||Duo.reason, resource_name: Azure.resourceDisplayName, normalized_trust_type: Azure.deviceDetail.trustType, auth_type: Duo.factor}"
+                }
+            ]
+        },
+        "geographical_auth_history": {
+            "query_templates": [
+                {
+                    "value": "{{\"bool\" : {{\"must\" : [{{\"range\": {{\"@timestamp\": {{\"gte\": \"{start_time}\", \"lte\": \"{end_time}\"}}}}}}, {{\"match_phrase\" : {{\"Duo.user.name\" : \"{entity_value}\"}}}}]}}}}",
+                    "attributes": {
+                        "entity_value": "user_name",
+                        "start_time": "start_time",
+                        "end_time": "end_time"
+                    },
+                    "index": "1000-duosecurity_logs",
+                    "field_mapping": "[]._source.{timestamp: \"@timestamp\", source_ip: Azure.ipAddress||Duo.auth_device.ip, src_ip_asn_number: Azure.autonomousSystemNumber, src_ip_country_code: Azure.location.countryOrRegion, device_id: Azure.deviceDetail.deviceId}"
+                },
+                {
+                    "value": "{{\"bool\" : {{\"must\" : [{{\"range\": {{\"@timestamp\": {{\"gte\": \"{start_time}\", \"lte\": \"{end_time}\"}}}}}}, {{\"match_phrase\" : {{\"Azure.userPrincipalName\" : \"{entity_value}\"}}}}]}}}}",
+                    "attributes": {
+                        "entity_value": "user_name",
+                        "start_time": "start_time",
+                        "end_time": "end_time"
+                    },
+                    "index": "1000-msazure_signins",
+                    "field_mapping": "[]._source.{timestamp: \"@timestamp\", source_ip: Azure.ipAddress||Duo.auth_device.ip, src_ip_asn_number: Azure.autonomousSystemNumber, src_ip_country_code: Azure.location.countryOrRegion, device_id: Azure.deviceDetail.deviceId}"
+                }
+            ],
+            "start_time_modifier": "-P30D"
+        },
+        "ip_history": {
+            "query_templates": [
+                {
+                    "value": "{{\"bool\" : {{\"must\" : [{{\"range\": {{\"@timestamp\": {{\"gte\": \"{start_time}\", \"lte\": \"{end_time}\"}}}}}}, {{\"match_phrase\" : {{\"Duo.auth_device.ip\" : \"{entity_value}\"}}}}]}}}}",
+                    "attributes": {
+                        "entity_value": "ip_address",
+                        "start_time": "start_time",
+                        "end_time": "end_time"
+                    },
+                    "index": "1000-duosecurity_logs",
+                    "field_mapping": "[]._source.{timestamp: \"@timestamp\"||Azure.createdDateTime||Duo.isotimestamp, source_ip: Azure.ipAddress||Azure.source.ip||Duo.auth_device.ip||Duo.access_device.ip, src_ip_asn_number: Azure.autonomousSystemNumber, src_ip_country_code: Azure.location.countryOrRegion, src_ip_country_name: Duo.auth_device.location.country||Duo.access_device.location.country, src_ip_city: Azure.location.city||Duo.auth_device.location.city||Duo.access_device.location.city, src_ip_state: Azure.location.state||Duo.auth_device.location.state||Duo.access_device.location.state, application: Azure.clientAppUsed||Duo.application.name, application_display_name: Azure.appDisplayName, device_os_name: Azure.deviceDetail.operatingSystem, device_browser: Azure.deviceDetail.browser, user_agent: Azure.userAgent, device_hostname: Azure.deviceDetail.deviceDisplayName||Azure.deviceDetail.displayName||Duo.auth_device.hostname, is_interactive: Azure.isInteractive, mfa_data: Azure.status.additionalDetails||Duo.reason, success: to_string(Azure.status.errorCode) == '0'||Duo.result == 'success', auth_service: event.dataset||service, device_id: Azure.deviceDetail.deviceId, device_name: Azure.deviceDetail.deviceDisplayName || Azure.deviceDetail.displayName, username: Azure.userPrincipalName, username_display_name: Azure.userDisplayName||Duo.alias, username_raw: Duo.email||user.username, device_is_compliant: Azure.deviceDetail.isCompliant, device_is_managed: Azure.deviceDetail.isManaged, device_trust_type: Azure.deviceDetail.trustType, authentication_requirement: Azure.authenticationRequirement||Duo.factor, error_code: to_string(Azure.status.errorCode), error_message: Azure.status.failureReason||Duo.reason, resource_name: Azure.resourceDisplayName, normalized_trust_type: Azure.deviceDetail.trustType, auth_type: Duo.factor}"
+                },
+                {
+                    "value": "{{\"bool\" : {{\"must\" : [{{\"range\": {{\"@timestamp\": {{\"gte\": \"{start_time}\", \"lte\": \"{end_time}\"}}}}}}, {{\"match_phrase\" : {{\"Azure.ipAddress\" : \"{entity_value}\"}}}}]}}}}",
+                    "attributes": {
+                        "entity_value": "ip_address",
+                        "start_time": "start_time",
+                        "end_time": "end_time"
+                    },
+                    "index": "1000-msazure_signins",
+                    "field_mapping": "[]._source.{timestamp: \"@timestamp\"||Azure.createdDateTime||Duo.isotimestamp, source_ip: Azure.ipAddress||Azure.source.ip||Duo.auth_device.ip||Duo.access_device.ip, src_ip_asn_number: Azure.autonomousSystemNumber, src_ip_country_code: Azure.location.countryOrRegion, src_ip_country_name: Duo.auth_device.location.country||Duo.access_device.location.country, src_ip_city: Azure.location.city||Duo.auth_device.location.city||Duo.access_device.location.city, src_ip_state: Azure.location.state||Duo.auth_device.location.state||Duo.access_device.location.state, application: Azure.clientAppUsed||Duo.application.name, application_display_name: Azure.appDisplayName, device_os_name: Azure.deviceDetail.operatingSystem, device_browser: Azure.deviceDetail.browser, user_agent: Azure.userAgent, device_hostname: Azure.deviceDetail.deviceDisplayName||Azure.deviceDetail.displayName||Duo.auth_device.hostname, is_interactive: Azure.isInteractive, mfa_data: Azure.status.additionalDetails||Duo.reason, success: to_string(Azure.status.errorCode) == '0'||Duo.result == 'success', auth_service: event.dataset||service, device_id: Azure.deviceDetail.deviceId, device_name: Azure.deviceDetail.deviceDisplayName || Azure.deviceDetail.displayName, username: Azure.userPrincipalName, username_display_name: Azure.userDisplayName||Duo.alias, username_raw: Duo.email||user.username, device_is_compliant: Azure.deviceDetail.isCompliant, device_is_managed: Azure.deviceDetail.isManaged, device_trust_type: Azure.deviceDetail.trustType, authentication_requirement: Azure.authenticationRequirement||Duo.factor, error_code: to_string(Azure.status.errorCode), error_message: Azure.status.failureReason||Duo.reason, resource_name: Azure.resourceDisplayName, normalized_trust_type: Azure.deviceDetail.trustType, auth_type: Duo.factor}"
+                }
+            ]
+        },
+        "user_count_by_asn": {
+            "query_templates": [
+                {
+                    "value": "{{\"bool\" : {{\"should\" : {asn_cidr_wildcards}, \"minimum_should_match\" : 1, \"must\" : [{{ \"range\": {{\"@timestamp\": {{\"gte\": \"{start_time}\", \"lte\": \"{end_time}\"}}}} }}, {{\"term\" : {{\"Azure.status.errorCode\" : 0}}}}]}}}}",
+                    "attributes": {
+                        "start_time": "start_time",
+                        "end_time": "end_time",
+                        "asn_cidr_wildcards": "asn_cidr_wildcards"
+                    },
+                    "index": "1000-msazure_signins",
+                    "aggregation": {
+                        "username_agg": {
+                            "terms": {
+                                "field": "Azure.userPrincipalName"
+                            }
+                        }
+                    },
+                    "field_mapping": "[].username_agg.buckets[].{username: key, count: doc_count}"
+                }
+            ]
+        }
+    }
+}

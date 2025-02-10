@@ -1,0 +1,242 @@
+{
+    "id": "963e5d59-1dc0-4c44-8aa5-23831aa654ab",
+    "tenant_id": "cdf9f4dd-a3a0-4306-ac97-de7310c0fab9",
+    "siem_type": "rapid7_idr",
+    "enrichments": {
+        "asset_history": {
+            "query_templates": [
+                {
+                    "value": "where(source_asset='{asset_name}' or destination_asset='{asset_name}')",
+                    "attributes": {
+                        "asset_name": "asset_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{source_asset: source_asset, destination_asset: destination_asset, source_asset_address: source_asset_address, destination_asset_address: destination_asset_address, user_account: destination_account || destination_local_account, user_name: destination_account, user_domain: source_domain, new_authentication: new_authentication, service: service, source_name: `null`, event_code: to_string(source_json.eventCode), computer_name: source_json.computerName, sid: `null`, success: result == 'SUCCESS', is_domain_controller: source_json.isDomainController, timestamp: timestamp || source_json.timeWritten}"
+                }
+            ]
+        },
+        "auth_record": {
+            "query_templates": [
+                {
+                    "value": "where(account='{username}' AND source_json.Application!='Application Discovery')",
+                    "attributes": {
+                        "username": "user_name"
+                    },
+                    "index": "Ingress Authentication",
+                    "field_mapping": "[].{timestamp: timestamp, source_ip: source_ip, username: user, username_raw: account, src_ip_asn_number: to_string(source_json.properties.autonomousSystemNumber), src_ip_asn_name: geoip_organization, src_ip_country_code: geoip_country_code, src_ip_country_name: geoip_country_name, application: source_json.properties.clientAppUsed, application_display_name: source_json.properties.appDisplayName, device_os_name: source_json.properties.deviceDetail.operatingSystem || (source_json.DeviceProperties[?Name=='OS'].Value | [0]), auth_service: service, user_agent: source_json.properties.userAgent || user_agent || (source_json.ExtendedProperties[?Name=='useragent'].Value | [0]), device_hostname: source_json.properties.deviceDetail.displayName, mfa_data: source_json.properties.status.additionalDetails, success: result == 'SUCCESS', is_interactive: source_json.category == 'SignInLogs', device_id: source_json.properties.deviceDetail.deviceId, device_name: source_json.properties.deviceDetail.displayName, username: user, username_raw: account, device_is_compliant: source_json.properties.deviceDetail.isCompliant, device_is_managed: source_json.properties.deviceDetail.isManaged, device_trust_type: source_json.properties.deviceDetail.trustType, type:'Authentication'}"
+                },
+                {
+                    "value": "where(account='{username}' AND source_json.Application='Application Discovery') groupby(user, account, result, source_ip, source_json.ClientPrivateIP) limit(10000) timeslice(1d)",
+                    "attributes": {
+                        "username": "user_name"
+                    },
+                    "index": "Ingress Authentication",
+                    "field_mapping": "[].{timestamp: timestamp, source_ip: source_ip, username: user, username_raw: account, src_ip_asn_number: to_string(source_json.properties.autonomousSystemNumber), src_ip_asn_name: geoip_organization, src_ip_country_code: geoip_country_code, src_ip_country_name: geoip_country_name, application: source_json.properties.clientAppUsed, application_display_name: source_json.properties.appDisplayName, device_os_name: source_json.properties.deviceDetail.operatingSystem || (source_json.DeviceProperties[?Name=='OS'].Value | [0]), auth_service: `Zscaler`, user_agent: source_json.properties.userAgent || user_agent || (source_json.ExtendedProperties[?Name=='useragent'].Value | [0]), device_hostname: source_json.properties.deviceDetail.displayName, mfa_data: source_json.properties.status.additionalDetails, success: result == 'SUCCESS', is_interactive: source_json.category == 'SignInLogs', device_id: source_json.properties.deviceDetail.deviceId, device_name: source_json.properties.deviceDetail.displayName, username: user, username_raw: account, device_is_compliant: source_json.properties.deviceDetail.isCompliant, device_is_managed: source_json.properties.deviceDetail.isManaged, device_trust_type: source_json.properties.deviceDetail.trustType, type:'Authentication', count: count}"
+                }
+            ]
+        },
+        "open_ports": {
+            "query_templates": [
+                {
+                    "value": "where(dstdevice_ip = '{internal_ip_adrr}') groupby(dstPort) limit(10000)",
+                    "attributes": {
+                        "internal_ip_adrr": "internal_ip_adrr"
+                    },
+                    "index": "Firewall Activity",
+                    "field_mapping": "[].{device_ip: dstdevice_ip, port_number: dstPort, count: count}"
+                }
+            ]
+        },
+        "asset_access": {
+            "query_templates": [
+                {
+                    "value": "where((destination_account={username} or source_account={username}))",
+                    "attributes": {
+                        "username": "user_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{source_asset: source_asset, destination_asset: destination_asset, source_asset_address: source_asset_address, destination_asset_address: destination_asset_address, user_account: destination_account || destination_local_account, user_name: destination_account, user_domain: source_domain, new_authentication: new_authentication, service: service, source_name: `null`, event_code: to_string(source_json.eventCode), computer_name: source_json.computerName, sid: `null`, success: result == 'SUCCESS', is_domain_controller: source_json.isDomainController, timestamp: timestamp || source_json.timeWritten}"
+                }
+            ]
+        },
+        "geographical_auth_history": {
+            "query_templates": [
+                {
+                    "value": "where(account='{username}' AND result='SUCCESS') groupby(geoip_country_code, geoip_organization, source_ip) limit(10000) timeslice(1d)",
+                    "attributes": {
+                        "username": "user_name"
+                    },
+                    "index": "Ingress Authentication",
+                    "field_mapping": "[].{source_ip: source_ip, src_ip_asn_name: geoip_organization, src_ip_country_code: geoip_country_code,  count: count, timestamp: timestamp}"
+                }
+            ]
+        },
+        "ip_history": {
+            "query_templates": [
+                {
+                    "value": "where(source_ip='{src_ip}' AND source_json.Application!='Application Discovery')",
+                    "attributes": {
+                        "src_ip": "ip_address"
+                    },
+                    "index": "Ingress Authentication",
+                    "field_mapping": "[].{timestamp: timestamp, source_ip: source_ip, username: user, username_raw: account, src_ip_asn_number: to_string(source_json.properties.autonomousSystemNumber), src_ip_asn_name: geoip_organization, src_ip_country_code: geoip_country_code, src_ip_country_name: geoip_country_name, application: source_json.properties.clientAppUsed, application_display_name: source_json.properties.appDisplayName, device_os_name: source_json.properties.deviceDetail.operatingSystem || (source_json.DeviceProperties[?Name=='OS'].Value | [0]), auth_service: service, user_agent: source_json.properties.userAgent || user_agent || (source_json.ExtendedProperties[?Name=='useragent'].Value | [0]), device_hostname: source_json.properties.deviceDetail.displayName, mfa_data: source_json.properties.status.additionalDetails, success: result == 'SUCCESS', is_interactive: source_json.category == 'SignInLogs', device_id: source_json.properties.deviceDetail.deviceId, device_name: source_json.properties.deviceDetail.displayName, username: user, username_raw: account, device_is_compliant: source_json.properties.deviceDetail.isCompliant, device_is_managed: source_json.properties.deviceDetail.isManaged, device_trust_type: source_json.properties.deviceDetail.trustType, type:'Authentication'}"
+                },
+                {
+                    "value": "where(source_ip='{src_ip}' AND source_json.Application='Application Discovery') groupby(user, account, result, source_ip, source_json.ClientPrivateIP) limit(10000) timeslice(1d)",
+                    "attributes": {
+                        "src_ip": "ip_address"
+                    },
+                    "index": "Ingress Authentication",
+                    "field_mapping": "[].{timestamp: timestamp, source_ip: source_ip, username: user, username_raw: account, src_ip_asn_number: to_string(source_json.properties.autonomousSystemNumber), src_ip_asn_name: geoip_organization, src_ip_country_code: geoip_country_code, src_ip_country_name: geoip_country_name, application: source_json.properties.clientAppUsed, application_display_name: source_json.properties.appDisplayName, device_os_name: source_json.properties.deviceDetail.operatingSystem || (source_json.DeviceProperties[?Name=='OS'].Value | [0]), auth_service: `Zscaler`, user_agent: source_json.properties.userAgent || user_agent || (source_json.ExtendedProperties[?Name=='useragent'].Value | [0]), device_hostname: source_json.properties.deviceDetail.displayName, mfa_data: source_json.properties.status.additionalDetails, success: result == 'SUCCESS', is_interactive: source_json.category == 'SignInLogs', device_id: source_json.properties.deviceDetail.deviceId, device_name: source_json.properties.deviceDetail.displayName, username: user, username_raw: account, device_is_compliant: source_json.properties.deviceDetail.isCompliant, device_is_managed: source_json.properties.deviceDetail.isManaged, device_trust_type: source_json.properties.deviceDetail.trustType, type:'Authentication', count: count}"
+                }
+            ]
+        },
+        "user_count_by_asn": {
+            "query_templates": [
+                {
+                    "value": "where(geoip_organization='{asn_name}' and result=SUCCESS) groupby(user) limit(1000)",
+                    "attributes": {
+                        "asn_name": "ip_asn_name"
+                    },
+                    "index": "Ingress Authentication",
+                    "field_mapping": "[].{username: user, count: count}"
+                }
+            ]
+        },
+        "src_to_dest_auth": {
+            "query_templates": [
+                {
+                    "value": "where(source_asset='{src_asset_name}' and destination_asset='{dest_asset_name}' and source_json.eventCode IN [4624, 4648]) limit(10000)",
+                    "attributes": {
+                        "src_asset_name": "src_asset_name",
+                        "dest_asset_name": "dest_asset_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{source_asset: source_asset, destination_asset: destination_asset, source_asset_address: source_asset_address, destination_asset_address: destination_asset_address, user_account: destination_account || destination_local_account, user_name: destination_account, user_domain: source_domain, new_authentication: new_authentication, service: service, source_name: `null`, event_code: to_string(source_json.eventCode), computer_name: source_json.computerName, sid: `null`, success: result == 'SUCCESS', is_domain_controller: source_json.isDomainController, timestamp: timestamp || source_json.timeWritten}"
+                }
+            ]
+        },
+        "user_login_to_src_dest_asset": {
+            "query_templates": [
+                {
+                    "value": "where((source_account='{main_account_name}' or destination_account='{main_account_name}') and (source_asset='{src_asset_name}' or destination_asset='{dest_asset_name}') and source_json.eventCode IN [4624, 4648]) limit(10000)",
+                    "attributes": {
+                        "main_account_name": "main_account_name",
+                        "src_asset_name": "src_asset_name",
+                        "dest_asset_name": "dest_asset_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{source_asset: source_asset, destination_asset: destination_asset, source_asset_address: source_asset_address, destination_asset_address: destination_asset_address, user_account: destination_account || destination_local_account, user_name: destination_account, user_domain: source_domain, new_authentication: new_authentication, service: service, source_name: `null`, event_code: to_string(source_json.eventCode), computer_name: source_json.computerName, sid: `null`, success: result == 'SUCCESS', is_domain_controller: source_json.isDomainController, timestamp: timestamp || source_json.timeWritten}"
+                }
+            ]
+        },
+        "target_explicit_login": {
+            "query_templates": [
+                {
+                    "value": "where(destination_account={username} and source_json.eventCode=4648)",
+                    "attributes": {
+                        "username": "user_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{source_asset: source_asset || source_json.EventData.WorkstationName, destination_asset: destination_asset || source_json.Computer, source_asset_address: source_asset_address || source_json.EventData.IpAddress, destination_asset_address: destination_asset_address, user_account: destination_account || destination_local_account, user_name: destination_account || source_json.EventData.TargetUserName, user_domain: source_domain, new_authentication: new_authentication, service: service || source_json.EventData.AuthenticationPackageName, source_name: `null`, event_code: to_string(source_json.eventCode) || to_string(source_json.EventID), computer_name: source_json.computerName || source_json.Computer, sid: `null`, success: result, is_domain_controller: source_json.isDomainController, timestamp: timestamp || source_json.timeWritten || source_json.TimeCreated, subject_username: source_account || source_local_account || source_json.EventData.SubjectUserName, target_username: destination_account || destination_local_account || source_json.EventData.TargetUserName, subject_user_display_name: source_user, target_user_display_name: destination_user, subject_user_domain: source_domain, target_user_domain: destination_domain, subject_user_sid: source_json.EventData.SubjectUserSid, target_user_sid: source_json.EventData.TargetUserSid, logon_type: logon_type || source_json.EventData.LogonType, new_source_authentication: new_source_authentication, new_source_for_account: new_source_for_account}"
+                }
+            ]
+        },
+        "explicit_login_src": {
+            "query_templates": [
+                {
+                    "value": "where(source_asset='{asset_name}' and destination_asset!='{asset_name}' and source_json.eventCode=4648)",
+                    "attributes": {
+                        "asset_name": "asset_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{timestamp: timestamp || source_json.timeWritten || source_json.TimeCreated, source_asset: source_asset || source_json.EventData.WorkstationName, destination_asset: destination_asset || source_json.Computer, device_hostname: destination_asset || source_json.Computer, source_asset_address: source_asset_address || source_json.EventData.IpAddress, destination_asset_address: destination_asset_address, subject_username: source_account || source_local_account || source_json.EventData.SubjectUserName, target_username: destination_account || destination_local_account || source_json.EventData.TargetUserName, user_name: destination_account || source_json.EventData.TargetUserName, subject_user_display_name: source_user, target_user_display_name: destination_user, subject_user_domain: source_domain || source_json.EventData.SubjectDomainName, target_user_domain: destination_domain || source_json.EventData.TargetDomainName, subject_user_sid: source_json.EventData.SubjectUserSid, target_user_sid: source_json.EventData.TargetUserSid, success: result, logon_type: logon_type || source_json.EventData.LogonType, new_authentication: new_authentication, new_source_authentication: new_source_authentication, new_source_for_account: new_source_for_account, service: service || source_json.EventData.AuthenticationPackageName, event_code: to_string(source_json.eventCode) || to_string(source_json.EventID), computer_name: source_json.computerName || source_json.Computer, is_domain_controller: source_json.isDomainController}"
+                }
+            ]
+        },
+        "explicit_login_dest": {
+            "query_templates": [
+                {
+                    "value": "where(destination_asset='{asset_name}' and source_asset!='{asset_name}' and source_json.eventCode=4648)",
+                    "attributes": {
+                        "asset_name": "asset_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{timestamp: timestamp || source_json.timeWritten || source_json.TimeCreated, source_asset: source_asset || source_json.EventData.WorkstationName, destination_asset: destination_asset || source_json.Computer, device_hostname: destination_asset || source_json.Computer, source_asset_address: source_asset_address || source_json.EventData.IpAddress, destination_asset_address: destination_asset_address, subject_username: source_account || source_local_account || source_json.EventData.SubjectUserName, target_username: destination_account || destination_local_account || source_json.EventData.TargetUserName, user_name: destination_account || source_json.EventData.TargetUserName, subject_user_display_name: source_user, target_user_display_name: destination_user, subject_user_domain: source_domain || source_json.EventData.SubjectDomainName, target_user_domain: destination_domain || source_json.EventData.TargetDomainName, subject_user_sid: source_json.EventData.SubjectUserSid, target_user_sid: source_json.EventData.TargetUserSid, success: result, logon_type: logon_type || source_json.EventData.LogonType, new_authentication: new_authentication, new_source_authentication: new_source_authentication, new_source_for_account: new_source_for_account, service: service || source_json.EventData.AuthenticationPackageName, event_code: to_string(source_json.eventCode) || to_string(source_json.EventID), computer_name: source_json.computerName || source_json.Computer, is_domain_controller: source_json.isDomainController}"
+                }
+            ]
+        },
+        "unique_local_explicit_login": {
+            "query_templates": [
+                {
+                    "value": "where(source_asset='{asset_name}' and destination_asset='{asset_name}' and source_json.eventCode=4648)",
+                    "attributes": {
+                        "asset_name": "asset_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{timestamp: timestamp || source_json.timeWritten || source_json.TimeCreated, source_asset: source_asset || source_json.EventData.WorkstationName, destination_asset: destination_asset || source_json.Computer, device_hostname: destination_asset || source_json.Computer, source_asset_address: source_asset_address || source_json.EventData.IpAddress, destination_asset_address: destination_asset_address, subject_username: source_account || source_local_account || source_json.EventData.SubjectUserName, target_username: destination_account || destination_local_account || source_json.EventData.TargetUserName, user_name: destination_account || source_json.EventData.TargetUserName, subject_user_display_name: source_user, target_user_display_name: destination_user, subject_user_domain: source_domain || source_json.EventData.SubjectDomainName, target_user_domain: destination_domain || source_json.EventData.TargetDomainName, subject_user_sid: source_json.EventData.SubjectUserSid, target_user_sid: source_json.EventData.TargetUserSid, success: result, logon_type: logon_type || source_json.EventData.LogonType, new_authentication: new_authentication, new_source_authentication: new_source_authentication, new_source_for_account: new_source_for_account, service: service || source_json.EventData.AuthenticationPackageName, event_code: to_string(source_json.eventCode) || to_string(source_json.EventID), computer_name: source_json.computerName || source_json.Computer, is_domain_controller: source_json.isDomainController}"
+                }
+            ]
+        },
+        "auth_src": {
+            "query_templates": [
+                {
+                    "value": "where(source_asset='{asset_name}' and destination_asset!='{asset_name}' and source_json.eventCode IN [4624, 4625])",
+                    "attributes": {
+                        "asset_name": "asset_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{timestamp: timestamp || source_json.timeWritten || source_json.TimeCreated, source_asset: source_asset || source_json.EventData.WorkstationName, destination_asset: destination_asset || source_json.Computer, device_hostname: destination_asset || source_json.Computer, source_asset_address: source_asset_address || source_json.EventData.IpAddress, destination_asset_address: destination_asset_address, subject_username: source_account || source_local_account || source_json.EventData.SubjectUserName, target_username: destination_account || destination_local_account || source_json.EventData.TargetUserName, user_name: destination_account || source_json.EventData.TargetUserName, subject_user_display_name: source_user, target_user_display_name: destination_user, subject_user_domain: source_domain || source_json.EventData.SubjectDomainName, target_user_domain: destination_domain || source_json.EventData.TargetDomainName, subject_user_sid: source_json.EventData.SubjectUserSid, target_user_sid: source_json.EventData.TargetUserSid, success: result, logon_type: logon_type || source_json.EventData.LogonType, new_authentication: new_authentication, new_source_authentication: new_source_authentication, new_source_for_account: new_source_for_account, service: service || source_json.EventData.AuthenticationPackageName, event_code: to_string(source_json.eventCode) || to_string(source_json.EventID), computer_name: source_json.computerName || source_json.Computer, is_domain_controller: source_json.isDomainController}"
+                }
+            ]
+        },
+        "auth_dest": {
+            "query_templates": [
+                {
+                    "value": "where(destination_asset='{asset_name}' and source_asset!='{asset_name}' and source_json.eventCode IN [4624, 4625])",
+                    "attributes": {
+                        "asset_name": "asset_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{timestamp: timestamp || source_json.timeWritten || source_json.TimeCreated, source_asset: source_asset || source_json.EventData.WorkstationName, destination_asset: destination_asset || source_json.Computer, device_hostname: destination_asset || source_json.Computer, source_asset_address: source_asset_address || source_json.EventData.IpAddress, destination_asset_address: destination_asset_address, subject_username: source_account || source_local_account || source_json.EventData.SubjectUserName, target_username: destination_account || destination_local_account || source_json.EventData.TargetUserName, user_name: destination_account || source_json.EventData.TargetUserName, subject_user_display_name: source_user, target_user_display_name: destination_user, subject_user_domain: source_domain || source_json.EventData.SubjectDomainName, target_user_domain: destination_domain || source_json.EventData.TargetDomainName, subject_user_sid: source_json.EventData.SubjectUserSid, target_user_sid: source_json.EventData.TargetUserSid, success: result, logon_type: logon_type || source_json.EventData.LogonType, new_authentication: new_authentication, new_source_authentication: new_source_authentication, new_source_for_account: new_source_for_account, service: service || source_json.EventData.AuthenticationPackageName, event_code: to_string(source_json.eventCode) || to_string(source_json.EventID), computer_name: source_json.computerName || source_json.Computer, is_domain_controller: source_json.isDomainController}"
+                }
+            ]
+        },
+        "unique_local_auth_subject_users": {
+            "query_templates": [
+                {
+                    "value": "where(source_asset='{asset_name}' and destination_asset='{asset_name}' and source_json.eventCode IN [4624, 4625]) groupby(source_account, source_user, destination_account, service, logon_type) limit(10000)",
+                    "attributes": {
+                        "asset_name": "asset_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{timestamp: timestamp || source_json.timeWritten || source_json.TimeCreated, source_asset: source_asset || source_json.EventData.WorkstationName, destination_asset: destination_asset || source_json.Computer, device_hostname: destination_asset || source_json.Computer, source_asset_address: source_asset_address || source_json.EventData.IpAddress, destination_asset_address: destination_asset_address, subject_username: source_account || source_local_account || source_json.EventData.SubjectUserName, target_username: destination_account || destination_local_account || source_json.EventData.TargetUserName, user_name: destination_account || source_json.EventData.TargetUserName, subject_user_display_name: source_user, target_user_display_name: destination_user, subject_user_domain: source_domain || source_json.EventData.SubjectDomainName, target_user_domain: destination_domain || source_json.EventData.TargetDomainName, subject_user_sid: source_json.EventData.SubjectUserSid, target_user_sid: source_json.EventData.TargetUserSid, success: result, logon_type: logon_type || source_json.EventData.LogonType, new_authentication: new_authentication, new_source_authentication: new_source_authentication, new_source_for_account: new_source_for_account, service: service || source_json.EventData.AuthenticationPackageName, event_code: to_string(source_json.eventCode) || to_string(source_json.EventID), computer_name: source_json.computerName || source_json.Computer, is_domain_controller: source_json.isDomainController}"
+                }
+            ]
+        },
+        "unique_local_auth_target_users": {
+            "query_templates": [
+                {
+                    "value": "where(source_asset='{asset_name}' and destination_asset='{asset_name}' and source_json.eventCode IN [4624, 4625]) groupby(destination_account, destination_user,service ,source_json.eventCode, logon_type) limit(10000)",
+                    "attributes": {
+                        "asset_name": "asset_name"
+                    },
+                    "index": "Asset Authentication",
+                    "field_mapping": "[].{timestamp: timestamp || source_json.timeWritten || source_json.TimeCreated, source_asset: source_asset || source_json.EventData.WorkstationName, destination_asset: destination_asset || source_json.Computer, device_hostname: destination_asset || source_json.Computer, source_asset_address: source_asset_address || source_json.EventData.IpAddress, destination_asset_address: destination_asset_address, subject_username: source_account || source_local_account || source_json.EventData.SubjectUserName, target_username: destination_account || destination_local_account || source_json.EventData.TargetUserName, user_name: destination_account || source_json.EventData.TargetUserName, subject_user_display_name: source_user, target_user_display_name: destination_user, subject_user_domain: source_domain || source_json.EventData.SubjectDomainName, target_user_domain: destination_domain || source_json.EventData.TargetDomainName, subject_user_sid: source_json.EventData.SubjectUserSid, target_user_sid: source_json.EventData.TargetUserSid, success: result, logon_type: logon_type || source_json.EventData.LogonType, new_authentication: new_authentication, new_source_authentication: new_source_authentication, new_source_for_account: new_source_for_account, service: service || source_json.EventData.AuthenticationPackageName, event_code: to_string(source_json.eventCode) || to_string(source_json.EventID), computer_name: source_json.computerName || source_json.Computer, is_domain_controller: source_json.isDomainController}"
+                }
+            ]
+        },
+        "asset_open_ports": {
+            "query_templates": [
+                {
+                    "value": "where(dstdevice_ip = '{asset_ip}') groupby(dstPort) limit(10000)",
+                    "attributes": {
+                        "asset_ip": "asset_ip"
+                    },
+                    "index": "Firewall Activity",
+                    "field_mapping": "[].{device_ip: dstdevice_ip, port_number: dstPort, count: count}"
+                }
+            ]
+        }
+    }
+}

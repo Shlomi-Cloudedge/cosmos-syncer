@@ -1,0 +1,5 @@
+{
+    "id": "internal_ip_adrr",
+    "type": "internal_ip",
+    "name": "ip_addr"
+}
