@@ -8,7 +8,7 @@ class GitCosmosDBSynchronizer:
         self.repo_path = repo_path
         self.cosmos_client = CosmosClient(cosmos_endpoint, credential=cosmos_key)
         self.database_name = db_name
-        self.managed_containers = []
+        self.managed_containers = ["enrichment_attributes"]
 
     def sync_repository(self):
         database = self.cosmos_client.create_database_if_not_exists(id=self.database_name)
