@@ -15,7 +15,7 @@ jobs:
       ||
        (github.event_name == 'pull_request' &&
          github.event.pull_request.head.ref != 'staging')
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     # outputs:
     #     MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
     steps:

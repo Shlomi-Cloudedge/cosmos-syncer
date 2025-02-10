@@ -6,7 +6,7 @@ on:
 
 jobs:
   sync:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     outputs:
    #     MODIFIED_FILES: ${{ steps.list_files.outputs.modified_files }}
         COSMOS_ENDPOINT: ${{ steps.cosmos_vars.outputs.COSMOS_ENDPOINT }}
